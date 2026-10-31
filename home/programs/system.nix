@@ -3,6 +3,7 @@
 {
   home.packages = with pkgs; [
     # Hardware / system controls
+    opentabletdriver
     gnome-disk-utility
     brightnessctl
     liquidctl

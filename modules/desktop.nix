@@ -6,6 +6,9 @@
   # ─────────────────────────────────────────────
    # environment.systemPackages = [ inputs.amane.packages.x86_64-linux.default ];
 
+    # GameMode root-level
+  programs.gamemode.enable = true;
+
   # Enable AppImage Support
   programs.appimage = {
     enable = true;

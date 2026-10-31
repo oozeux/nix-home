@@ -17,7 +17,8 @@
     #wlsunset  #Uncomment if you use niri or mango.
     libnotify
     networkmanagerapplet
-    
+    unrar
+
     #Installer
   ];
 }

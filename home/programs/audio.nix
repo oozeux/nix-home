@@ -8,6 +8,8 @@
     qpwgraph
     cava
     playerctl
+    #audacity
+    #easyeffects
 
     # Audio / media helpers
     socat
