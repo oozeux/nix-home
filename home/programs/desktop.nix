@@ -12,6 +12,7 @@
 
     # Office Utilities
     libreoffice
+    xournalpp
 
     # Desktop utilities
     #wlsunset  #Uncomment if you use niri or mango.

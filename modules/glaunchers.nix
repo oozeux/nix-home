@@ -2,6 +2,11 @@
 
 {
     environment.systemPackages = with pkgs; [
+    
+    # Proton compatibility
+    protonplus
+    protontricks
+
     # Wine Compatibility
     wineWow64Packages.stable
     #winetricks

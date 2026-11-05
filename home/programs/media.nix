@@ -3,7 +3,7 @@
 {
   home.packages = with pkgs; [
     # Video
-    mpv
+    #mpv
     vlc
     ffmpeg
     #parabolic #YT VideoDownloader

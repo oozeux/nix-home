@@ -23,8 +23,8 @@
     # Git / Nix
     git
     #gh
-    nixd
-    nixfmt-rfc-style
+    #nixd
+    #nixfmt-rfc-style
     nix-search-cli
     #lazygit
     
@@ -32,6 +32,10 @@
     ruff
     uv
     openssl
+    bbe
+    mpv-unwrapped
+    libsecret
+    aria2
 
     # Java 
     openjdk
@@ -53,6 +57,7 @@
     gnumake
     cmake
     pkg-config
+    ninja
 
     # Qt / QML
     qt6.qttools

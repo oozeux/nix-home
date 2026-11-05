@@ -37,7 +37,7 @@
      # Icons
     #tela-icon-theme
     papirus-icon-theme
-    kdePackages.breeze-icons
+    #kdePackages.breeze-icons
 
     kdePackages.qt6ct
 

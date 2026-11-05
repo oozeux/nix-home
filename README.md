@@ -1,242 +1,249 @@
-# ❄️ NixOS Configuration
+# ❄️ Configuración de NixOS
 
-A modular NixOS configuration using **Flakes** and **Home Manager**,
-with Hyprland, niri, MangoWM, QuickShell, NVIDIA support, gaming tools,
-and development packages.
+Una configuración modular de NixOS que utiliza **Flakes** y **Home Manager**,
+con Hyprland, niri, MangoWM, QuickShell, compatibilidad con NVIDIA,
+herramientas para videojuegos y paquetes de desarrollo.
 
-This repository is tailored to my own PC. **Do not apply it without
-reviewing the machine-specific settings first.** My desktop dotfiles are
-maintained separately in
+Este repositorio está adaptado a mi propio PC. **No lo apliques sin revisar
+primero los ajustes específicos de tu máquina.** Mis dotfiles de escritorio
+se mantienen por separado en
 [dotfiles-nix](https://github.com/shizukutakahashi55-del/dotfiles-nix).
 
-## What's included
+## Qué incluye
 
--   **Window managers:** Hyprland, niri, and MangoWM.
--   **Desktop:** QuickShell, lock/idle tools, wallpapers, screenshots,
-    clipboard utilities, and theming.
--   **System:** PipeWire, Bluetooth, NetworkManager, Flatpak, polkit,
-    and QEMU.
--   **Graphics:** NVIDIA drivers and OBS/CUDA configuration. An AMD
-    alternative may be available in the modules.
--   **Gaming:** Steam with Millennium, Lutris, Wine/Proton tools,
-    MangoHud, and Prism Launcher.
--   **Apps:** Browsers, communication, development, terminal, file
-    management, and multimedia tools configured with Home Manager.
--   **Installer:** A QuickShell GUI for editing supported Nix files,
-    reviewing changes, and building/testing/applying the configuration.
+- **Gestores de ventanas:** Hyprland, niri y MangoWM.
+- **Escritorio:** QuickShell, herramientas de bloqueo e inactividad, fondos
+  de pantalla, capturas, utilidades del portapapeles y temas.
+- **Sistema:** PipeWire, Bluetooth, NetworkManager, Flatpak, polkit y QEMU.
+- **Gráficos:** controladores NVIDIA y configuración de OBS/CUDA. Puede haber
+  una alternativa para AMD en los módulos.
+- **Videojuegos:** Steam con Millennium, Lutris, herramientas de Wine/Proton,
+  MangoHud y Prism Launcher.
+- **Aplicaciones:** navegadores, comunicación, desarrollo, terminal,
+  administración de archivos y herramientas multimedia configuradas con
+  Home Manager.
+- **Instalador:** una interfaz gráfica de QuickShell para editar archivos Nix
+  compatibles, revisar cambios y compilar, probar y aplicar la configuración.
 
-## Before installing
+## Antes de instalar
 
-Requirements:
+Requisitos:
 
--   An existing **NixOS 26.05** installation.
--   `x86_64-linux` and UEFI.
--   Git and Flakes enabled.
+- Una instalación existente de **NixOS 26.05**.
+- Arquitectura `x86_64-linux` y UEFI.
+- Git y Flakes habilitados.
 
-This configuration includes hardware- and user-specific values. Review
-at least:
+Esta configuración incluye valores específicos del hardware y del usuario.
+Revisa, como mínimo, los siguientes archivos:
 
--   `hardware-configuration.nix`
--   `modules/users.nix` and `home/default.nix`
--   `modules/networking.nix`
--   `flake.nix` and `configuration.nix`
--   GPU and filesystem-related modules
+- `hardware-configuration.nix`
+- `modules/users.nix` y `home/default.nix`
+- `modules/networking.nix`
+- `flake.nix` y `configuration.nix`
+- Los módulos relacionados con la GPU y el sistema de archivos
 
-## Installation
+## Instalación
 
-### 1. Clone the repository
+### 1. Clona el repositorio
 
-``` bash
+```bash
 git clone https://github.com/shizukutakahashi55-del/nix-home.git ~/nix-home
 cd ~/nix-home
 ```
 
-### 2. Generate your hardware configuration
+### 2. Genera la configuración de hardware
 
-Do not reuse the repository's `hardware-configuration.nix` on another
-machine. Replace it with the one for your current installation:
+No reutilices el archivo `hardware-configuration.nix` del repositorio en
+otra máquina. Sustitúyelo por el correspondiente a tu instalación actual:
 
-``` bash
+```bash
 sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
 ```
 
-Check the generated file before continuing.
+Revisa el archivo generado antes de continuar.
 
-### 3. Change the username
+### 3. Cambia el nombre de usuario
 
-Find your current username:
+Averigua tu nombre de usuario actual:
 
-``` bash
+```bash
 whoami
 ```
 
-Replace the example username `oozenix` with your own wherever it is
-hard-coded (mainly `modules/users.nix` and `home/default.nix`). Find all
-occurrences from the repository root with:
+Sustituye el nombre de ejemplo `oozenix` por el tuyo en todos los lugares
+donde esté escrito directamente (principalmente en `modules/users.nix` y
+`home/default.nix`). Para encontrar todas las apariciones desde la raíz del
+repositorio, ejecuta:
 
-``` bash
+```bash
 grep -RIn --exclude-dir=.git 'oozenix' .
 ```
 
-Do not blindly replace every match: check whether each occurrence is a
-username, a path (`/home/oozenix`), or an unrelated string.
+No reemplaces todas las coincidencias a ciegas: comprueba si cada aparición
+es un nombre de usuario, una ruta (`/home/oozenix`) o una cadena sin relación.
 
-### 4. Adapt the rest of the configuration
+### 4. Adapta el resto de la configuración
 
-Update the hostname, timezone, locale, GPU, and any filesystem-specific
-settings to match your machine.
+Actualiza el nombre del equipo (hostname), la zona horaria, la configuración
+regional, la GPU y cualquier ajuste específico del sistema de archivos para
+que coincidan con tu máquina.
 
-The flake defines the host as `nixos`, so the commands in this README use
-`.#nixos`. If you rename the host in `flake.nix`, update the commands
-accordingly.
+El flake define el equipo como `nixos`, por lo que los comandos de este README
+utilizan `.#nixos`. Si cambias el nombre del equipo en `flake.nix`, actualiza
+también los comandos según corresponda.
 
-For an AMD system, review the GPU imports in `configuration.nix` and the
-OBS module before building. Do not enable both GPU configurations.
+Si tu sistema utiliza AMD, revisa las importaciones de GPU en
+`configuration.nix` y el módulo de OBS antes de compilar. No habilites ambas
+configuraciones de GPU al mismo tiempo.
 
-### 5. Add new files to Git
+### 5. Añade los archivos nuevos a Git
 
-Flakes only see files tracked by Git, so any file you create or rename
-must be staged before rebuilding. Check what changed first:
+Flakes solo detecta los archivos registrados en Git. Por eso, cualquier
+archivo que crees o renombres debe añadirse al índice antes de reconstruir
+la configuración. Primero revisa qué ha cambiado:
 
-``` bash
+```bash
 git status --short
 ```
 
-Then stage what you intend to include:
+Después, añade los archivos que quieras incluir:
 
-``` bash
+```bash
 git add hardware-configuration.nix configuration.nix flake.nix modules home
 ```
 
-### 6. Build and apply
+### 6. Compila y aplica la configuración
 
-Check that the configuration builds:
+Comprueba que la configuración se pueda compilar:
 
-``` bash
+```bash
 sudo nixos-rebuild dry-build --flake .#nixos
 ```
 
-Then activate it:
+Después, actívala:
 
-``` bash
+```bash
 sudo nixos-rebuild switch --flake .#nixos
 ```
 
-Reboot if required. Home Manager is integrated into the NixOS
-configuration, so you do not need to run `home-manager switch`
-separately.
+Reinicia si es necesario. Home Manager está integrado en la configuración
+de NixOS, así que no necesitas ejecutar `home-manager switch` por separado.
 
-## Updating
+## Actualización
 
-To get the latest changes from this repository without losing your own
-edits (username, hardware configuration, etc.):
+Para obtener los últimos cambios de este repositorio sin perder tus propias
+modificaciones (nombre de usuario, configuración de hardware, etc.):
 
-``` bash
+```bash
 cd ~/nix-home
-git stash            # save your local changes
-git pull             # download the latest version
-git stash pop        # re-apply your changes
+git stash            # guarda tus cambios locales
+git pull             # descarga la versión más reciente
+git stash pop        # vuelve a aplicar tus cambios
 ```
 
-If `git stash pop` reports conflicts, open the marked files, keep the
-values that apply to your machine, and then run `git add` on them.
+Si `git stash pop` informa de conflictos, abre los archivos marcados,
+conserva los valores que correspondan a tu máquina y después ejecuta
+`git add` sobre ellos.
 
-Then review and apply:
+Luego revisa los cambios y aplica la configuración:
 
-``` bash
-git diff HEAD@{1} -- flake.lock     # optional: see which inputs changed
+```bash
+git diff HEAD@{1} -- flake.lock     # opcional: muestra qué entradas cambiaron
 sudo nixos-rebuild dry-build --flake .#nixos
 sudo nixos-rebuild switch --flake .#nixos
 ```
 
-Notes:
+Notas:
 
--   If the update added new files that mention `oozenix`, repeat the
-    `grep` from [step 3](#3-change-the-username).
--   If you downloaded the repository as a ZIP instead of cloning it,
-    `git pull` is not available. Download the new ZIP, copy your edited
-    files (`hardware-configuration.nix`, `modules/users.nix`,
-    `home/default.nix`, etc.) over it, or switch to `git clone` to make
-    future updates easier.
--   If something breaks, go back to the previous generation with
-    `sudo nixos-rebuild switch --rollback`.
+- Si la actualización añade archivos nuevos que mencionan `oozenix`, vuelve
+  a ejecutar el comando `grep` del [paso 3](#3-cambia-el-nombre-de-usuario).
+- Si descargaste el repositorio como ZIP en lugar de clonarlo, `git pull` no
+  estará disponible. Descarga el ZIP nuevo y copia sobre él tus archivos
+  modificados (`hardware-configuration.nix`, `modules/users.nix`,
+  `home/default.nix`, etc.), o cambia a `git clone` para facilitar futuras
+  actualizaciones.
+- Si algo deja de funcionar, vuelve a la generación anterior con
+  `sudo nixos-rebuild switch --rollback`.
 
-## Common commands
+## Comandos habituales
 
-Run these from the repository directory.
+Ejecuta estos comandos desde el directorio del repositorio.
 
-| Command | Purpose |
+| Comando | Función |
 |---|---|
-| `nix flake update` | Update flake inputs and rewrite `flake.lock`. Only run it if you intend to update dependencies, and review the changes first. |
-| `sudo nixos-rebuild dry-build --flake .#nixos` | Check whether the configuration builds without activating it. |
-| `sudo nixos-rebuild build --flake .#nixos` | Build the system configuration without activating it. |
-| `sudo nixos-rebuild test --flake .#nixos` | Activate the configuration temporarily; it will not become the boot default. |
-| `sudo nixos-rebuild switch --flake .#nixos` | Build and activate the configuration and make it the current system generation. |
-| `sudo nixos-rebuild boot --flake .#nixos` | Build and set it as the next boot default without activating it now. |
-| `sudo nixos-rebuild switch --rollback` | Switch to the previous system generation. |
-| `git status --short` | Show modified and untracked files. |
-| `git diff` | Review unstaged changes. |
+| `nix flake update` | Actualiza las entradas del flake y vuelve a generar `flake.lock`. Ejecútalo solo si quieres actualizar las dependencias y revisa primero los cambios. |
+| `sudo nixos-rebuild dry-build --flake .#nixos` | Comprueba si la configuración se puede compilar sin activarla. |
+| `sudo nixos-rebuild build --flake .#nixos` | Compila la configuración del sistema sin activarla. |
+| `sudo nixos-rebuild test --flake .#nixos` | Activa la configuración temporalmente; no se convertirá en la configuración predeterminada de arranque. |
+| `sudo nixos-rebuild switch --flake .#nixos` | Compila y activa la configuración, y la establece como la generación actual del sistema. |
+| `sudo nixos-rebuild boot --flake .#nixos` | Compila la configuración y la establece como predeterminada para el siguiente arranque, sin activarla ahora. |
+| `sudo nixos-rebuild switch --rollback` | Vuelve a la generación anterior del sistema. |
+| `git status --short` | Muestra los archivos modificados y los que aún no están registrados en Git. |
+| `git diff` | Revisa los cambios que todavía no se han añadido al índice. |
 
-**Tip:** Changes to the compositor, display manager, or login screen can
-end your graphical session. Apply them from a TTY, or use
-`sudo nixos-rebuild boot --flake .#nixos` and reboot. If the login screen
-fails, switch to another TTY (Ctrl+Alt+F2) and run
+**Consejo:** Los cambios en el compositor, el gestor de pantalla o la pantalla
+de inicio de sesión pueden cerrar tu sesión gráfica. Aplícalos desde una TTY
+o utiliza `sudo nixos-rebuild boot --flake .#nixos` y reinicia. Si la pantalla
+de inicio de sesión falla, cambia a otra TTY (`Ctrl+Alt+F2`) y ejecuta
 `sudo nixos-rebuild switch --rollback`.
 
-## Graphical installer
+## Instalador gráfico
 
-The `installer/` directory contains a QuickShell GUI for managing
-supported `.nix` files in this repository. It includes package
-search/editing, a change review, a Nix file editor, and controls to
-validate, test, and apply changes. Review each change before applying it.
+El directorio `installer/` contiene una interfaz gráfica de QuickShell para
+administrar los archivos `.nix` compatibles de este repositorio. Incluye
+búsqueda y edición de paquetes, revisión de cambios, un editor de archivos
+Nix y controles para validar, probar y aplicar cambios. Revisa cada cambio
+antes de aplicarlo.
 
-If QuickShell and `nix-search-cli` are not already available, launch it
-with:
+Si QuickShell y `nix-search-cli` aún no están disponibles, inicia el
+instalador con:
 
-``` bash
+```bash
 nix shell -p quickshell nix-search-cli -c ./installer/run.sh
 ```
 
-Otherwise, run:
+De lo contrario, ejecuta:
 
-``` bash
+```bash
 ./installer/run.sh
 ```
 
-To toggle the installer from a keybinding:
+Para mostrar u ocultar el instalador mediante una combinación de teclas:
 
-``` bash
+```bash
 ./installer/toggle.sh
 ```
 
-To force it to close even if a command is running:
+Para forzar su cierre incluso si hay un comando en ejecución:
 
-``` bash
+```bash
 ./installer/toggle.sh --force
 ```
 
-The Rust backend is built outside the repository by default, under
-`~/.cache/nix-home-installer/target`. You can override the build
-location with `CARGO_TARGET_DIR`.
+Por defecto, el backend de Rust se compila fuera del repositorio, en
+`~/.cache/nix-home-installer/target`. Puedes cambiar la ubicación de
+compilación mediante `CARGO_TARGET_DIR`.
 
-## OozeLogin (login screen)
+## OozeLogin (pantalla de inicio de sesión)
 
-`modules/greetd.nix` enables OozeLogin, a QuickShell greeter for greetd
-with its own settings window. It replaces tuigreet. Details in
+`modules/greetd.nix` habilita OozeLogin, una pantalla de bienvenida de
+QuickShell para greetd que cuenta con su propia ventana de ajustes.
+Reemplaza a tuigreet. Encontrarás más detalles en
 `modules/oozelogin/README.md`.
 
-| Command | Purpose |
+| Comando | Función |
 |---|---|
-| `oozelogin-settings` | Settings window (appearance, panels, access, weather, OozeShell) |
-| `oozelogin-preview` | Run the greeter in a window to test it (test password: `ooze`) |
-| `oozelogin-sync` | Copy OozeShell colors, wallpaper and avatar to the greeter |
+| `oozelogin-settings` | Abre la ventana de ajustes (apariencia, paneles, acceso, clima y OozeShell). |
+| `oozelogin-preview` | Ejecuta la pantalla de bienvenida en una ventana para probarla (contraseña de prueba: `ooze`). |
+| `oozelogin-sync` | Copia los colores de OozeShell, el fondo de pantalla y el avatar a la pantalla de inicio de sesión. |
 
-`sync.enable = true` runs the sync automatically whenever the matugen
-palette, the awww wallpaper or the OozeShell profile change. Your user
-must be in the `users` group to edit the greeter settings. Test with
-`oozelogin-preview` before applying.
+La opción `sync.enable = true` ejecuta la sincronización automáticamente
+cada vez que cambian la paleta de matugen, el fondo de pantalla de awww o
+el perfil de OozeShell. Tu usuario debe pertenecer al grupo `users` para
+poder editar los ajustes de la pantalla de bienvenida. Prueba los cambios
+con `oozelogin-preview` antes de aplicarlos.
 
-## Repository layout
+## Estructura del repositorio
 
 ```text
 .
@@ -244,23 +251,24 @@ must be in the `users` group to edit the greeter settings. Test with
 ├── flake.lock
 ├── configuration.nix
 ├── hardware-configuration.nix
-├── modules/       # System modules, drivers, services, and OozeLogin
-├── home/          # Home Manager configuration and user applications
-└── installer/     # QuickShell interface and Rust backend
+├── modules/       # Módulos del sistema, controladores, servicios y OozeLogin
+├── home/          # Configuración de Home Manager y aplicaciones del usuario
+└── installer/     # Interfaz de QuickShell y backend de Rust
 ```
 
-## Important notes
+## Notas importantes
 
--   **System version:** Keep `system.stateVersion` and Home Manager's
-    `home.stateVersion` consistent with the version used when the system
-    was first installed. Do not change them just to upgrade NixOS.
--   **NVIDIA environment:** `modules/nvidia.nix` sets graphics-related
-    environment variables. If your compositor config sets the same
-    variables, keep the values consistent.
--   **Polkit:** Review `modules/polkit.nix`; it defines which privileged
-    power actions can be performed without a password.
--   **Maintenance:** Review `modules/maintenance.nix` and make sure its
-    Btrfs maintenance settings match your filesystem.
--   **flake.lock:** Keep it committed when the configuration is in a
-    known-good state, since `nix flake update` can introduce upstream
-    changes.
+- **Versión del sistema:** Mantén `system.stateVersion` y
+  `home.stateVersion` de Home Manager en las versiones utilizadas cuando se
+  instaló el sistema por primera vez. No las cambies solo para actualizar
+  NixOS.
+- **Entorno NVIDIA:** `modules/nvidia.nix` establece variables de entorno
+  relacionadas con los gráficos. Si la configuración de tu compositor
+  establece esas mismas variables, asegúrate de que los valores coincidan.
+- **Polkit:** Revisa `modules/polkit.nix`; define qué acciones privilegiadas
+  de energía se pueden realizar sin contraseña.
+- **Mantenimiento:** Revisa `modules/maintenance.nix` y asegúrate de que los
+  ajustes de mantenimiento de Btrfs correspondan a tu sistema de archivos.
+- **`flake.lock`:** Mantén este archivo registrado en Git cuando la
+  configuración esté en un estado estable, ya que `nix flake update` puede
+  introducir cambios procedentes de los proyectos originales.
