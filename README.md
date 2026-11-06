@@ -47,7 +47,7 @@ Revisa, como mínimo, los siguientes archivos:
 ### 1. Clona el repositorio
 
 ```bash
-git clone https://github.com/shizukutakahashi55-del/nix-home.git ~/nix-home
+git clone https://github.com/oozeux/nix-home.git ~/nix-home
 cd ~/nix-home
 ```
 
