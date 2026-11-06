@@ -18,10 +18,11 @@
     # ==========================================================================
     # TwintailLauncher
     # ==========================================================================
-    # twintail = {
-    #   url = "github:Yuna404/TwintailFlake";
+    # twintaillauncher = {
+    #   url = "github:axioncs/twintaillauncher-flake";
     #   inputs.nixpkgs.follows = "nixpkgs";
     # };
+
 
     # ==========================================================================
     # PRISM LAUNCHER
@@ -39,7 +40,7 @@
     # ==========================================================================
     # HYPRLAND
     # ==========================================================================
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprnix.url = "github:hyprwm/hyprnix";
 
     # amane.url = "github:MystiaFin/amane";
 

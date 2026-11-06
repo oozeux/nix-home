@@ -33,11 +33,8 @@
 
   # networking.firewall = {
   #   allowedTCPPorts = [
-  #     25565
   #   ];
   #   allowedUDPPorts = [
-  #     49983
-  #     50509
   #   ];
   # };
 

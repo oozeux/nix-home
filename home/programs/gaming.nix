@@ -7,7 +7,7 @@
   goverlay
 
   # TwintailLauncher Gachagames launcher
-  ##inputs.twintail.packages.${pkgs.stdenv.hostPlatform.system}.default
+  #inputs.twintaillauncher.packages.${pkgs.stdenv.hostPlatform.system}.default
 
 
   # Game launchers

@@ -3,10 +3,8 @@
 {
   home.packages = with pkgs; [
     # Browsers
-    #brave 
-    brave-origin
     librewolf
-    #firefox-esr
+    firefox
     # vivaldi
 
     # Browsers Theming

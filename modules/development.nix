@@ -35,7 +35,7 @@
     bbe
     mpv-unwrapped
     libsecret
-    aria2
+    #aria2
 
     # Java 
     openjdk
