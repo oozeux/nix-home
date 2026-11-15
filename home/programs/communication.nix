@@ -6,6 +6,7 @@
     #discord-ptb
     #discord-canary
     #telegram-desktop
+    #thunderbird
     #vesktop
 
     #Installer

@@ -12,6 +12,7 @@
     # Images
     nomacs
     imagemagick
+    #inkscape-with-extensions
     
     #Installer
   ];

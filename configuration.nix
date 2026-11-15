@@ -24,24 +24,14 @@
     #./modules/mango.nix
     ./modules/networking.nix
     #./modules/niri.nix
-    ./modules/nvidia.nix # This one.
     ./modules/polkit.nix
     ./modules/qemu.nix
     ./modules/quickshell.nix
     ./modules/users.nix
     
+    ./modules/nvidia.nix 
     #./modules/amdgpu.nix  
-    
-    #Uncomment if you use AMD 
-    # and comment or delete the nvidia one.
 
-    # ───────────────────────────────────────────
-    # Programas que se quedan a nivel sistema
-    # (ver README: son los que necesitan algo que
-    # Home Manager no puede darles por su cuenta —
-    # librerías/drivers del sistema, plugins que
-    # tiene que encontrar una sesión de escritorio
-    # a nivel sistema, o wrappers setuid)
     # ───────────────────────────────────────────
 
     ./modules/programs/obs.nix
@@ -60,18 +50,11 @@
   # ─────────────────────────────────────────────
   # Home Manager
   # ─────────────────────────────────────────────
-  # El resto de los "programas" (navegadores, comunicación, desarrollo,
-  # gaming, multimedia, utilidades de CLI, terminal) se instalan acá,
-  # a nivel de usuario, en vez de con environment.systemPackages. Ver
-  # ./home/default.nix.
 
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
 
-    # Si algún día tenías un dotfile puesto a mano que choca con uno que
-    # ahora gestiona Home Manager, en vez de fallar el build, lo renombra
-    # con este sufijo así no perdés nada.
     backupFileExtension = "hm-backup";
 
     extraSpecialArgs = { inherit inputs; };

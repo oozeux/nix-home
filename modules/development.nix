@@ -24,7 +24,7 @@
     git
     #gh
     #nixd
-    #nixfmt-rfc-style
+    #nixfmt
     nix-search-cli
     #lazygit
     
@@ -37,6 +37,10 @@
     libsecret
     #aria2
 
+    # Metadata Tools
+    #c2patool
+    #exiftool
+
     # Java 
     openjdk
     jdk17
@@ -46,11 +50,17 @@
     # Python
     python3Packages.pip
     #python314Packages.pandas
-    
+    #python314Packages.pip
+    #python314Packages.pyside6
+
+    # PHP
+    php 
+
     # Rust
     rustc
     rustfmt
     cargo
+    clippy
 
     # C / C++
     gcc
@@ -73,7 +83,7 @@
     wget
     #tree
 
-     ##Wayland
+    ## Wayland
     #  wayland-protocols
     #  wayland.dev
     #  waylandpp

@@ -3,7 +3,7 @@
 {
   home.packages = with pkgs; [
     # App store 
-    bazaar
+    #bazaar
    
     # Bars / launchers / session controls
     #waybar
@@ -13,14 +13,14 @@
     # Office Utilities
     libreoffice
     xournalpp
-    #solaar
+    solaar
 
     # Desktop utilities
-    #wlsunset  #Uncomment if you use niri or mango.
+    wlsunset
     libnotify
     networkmanagerapplet
     unrar
-
+    
     #Installer
   ];
 }

@@ -23,12 +23,12 @@
   # ─────────────────────────────────────────────
   # Mantenimiento de Btrfs
   # ─────────────────────────────────────────────
-# Comment this section if you don't use btrfs.
-  services.btrfs.autoScrub = {
-    enable = true;
-    interval = "monthly";
-    fileSystems = [ "/" ];
-  };
+
+  # services.btrfs.autoScrub = {
+  #   enable = true;
+  #   interval = "monthly";
+  #   fileSystems = [ "/" ];
+  # };
 
   services.fstrim.enable = true;
 }

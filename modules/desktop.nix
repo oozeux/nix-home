@@ -4,9 +4,8 @@
   # ─────────────────────────────────────────────
   # Linux Packages
   # ─────────────────────────────────────────────
-   # environment.systemPackages = [ inputs.amane.packages.x86_64-linux.default ];
-
-    # GameMode root-level
+  
+  # GameMode root-level
   programs.gamemode.enable = true;
 
   # Enable AppImage Support
@@ -17,14 +16,31 @@
 
   # Module Linux Packages
   programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+      libX11
+      wayland
+      libxkbcommon
 
+      libGL
+      vulkan-loader
+
+      # Required
+      glib
+
+      fontconfig
+      alsa-lib
+      libpulseaudio
+
+      fuse
+      e2fsprogs
+    ];
   # ─────────────────────────────────────────────
   # Storage
   # ─────────────────────────────────────────────
 
   # Mount disks
   services.udisks2.enable = true;
-  # Servicios clave para funcionalidad (papelera, montaje, redes)
+  # (papelera, montaje, redes)
   services.gvfs.enable = true;
   # ─────────────────────────────────────────────
   # Printing & Fonts
@@ -41,7 +57,7 @@
     mplus-outline-fonts.githubRelease
     migu                           # opcional, japonés
     (google-fonts.override {
-      fonts = [ "Silkscreen" "DotGothic16" "VT323" ];
+      fonts = [ "Silkscreen" "DotGothic16" "VT323" "Lilita One" "Fredoka" ];
     })
   ];
 }

@@ -355,7 +355,7 @@ in
 
     fallback.command = mkOption {
       type = types.str;
-      default = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --remember --remember-user-session";
+      default = "${pkgs.tuigreet}/bin/tuigreet --time --remember --remember-user-session";
       description = "Comando del greeter de respaldo.";
     };
 
