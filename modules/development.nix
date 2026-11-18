@@ -24,8 +24,8 @@
     # Git / Nix
     git
     #gh
-    nixd
-    nixfmt
+    # nixd
+    # nixfmt
     nix-search-cli
     #lazygit
     
@@ -39,8 +39,8 @@
     aria2
 
     # Metadata Tools
-    c2patool
-    exiftool
+    # c2patool
+    # exiftool
 
     # Java 
     openjdk
@@ -51,11 +51,11 @@
     # Python
     python3Packages.pip
     #python314Packages.pandas
-    python314Packages.pip
-    python314Packages.pyside6
+    #python314Packages.pip
+    #python314Packages.pyside6
 
     # PHP 
-    php
+    #php
 
     # Rust
     rustc

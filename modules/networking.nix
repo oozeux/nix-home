@@ -29,15 +29,15 @@
 
   networking.networkmanager.enable = true;
 
-   networking.firewall = {
-  #   allowedTCPPorts = [
-  #     25565
+  #  networking.firewall = {
+  # #   allowedTCPPorts = [
+  # #     25565
+  # #   ];
+  #   allowedUDPPorts = [
+  #     49983
+  #     50509
   #   ];
-    allowedUDPPorts = [
-      49983
-      50509
-    ];
-  };
+  # };
   
   # ─────────────────────────────────────────────
   # Timezone
