@@ -42,7 +42,6 @@ Singleton {
     panelRadius: 22,
     layoutStyle: "single",
     singleToolbar: "inside",
-    sparkles: true,
     showTopBar: true,
     showInfoPanel: true,
     showClock: true,

@@ -10,13 +10,10 @@
   };
 
   # Módulo del kernel para AMD. `
-  hardware.amdgpu.initrd.enable = true;
+  boot.initrd.kernelModules = [ "amdgpu" ];
 
   # Driver de video para Xorg/Wayland. 
   services.xserver.videoDrivers = [ "amdgpu" ];
-
-  # Soporte de OpenCL
-  hardware.amdgpu.opencl.enable = true;
 
   # ─────────────────────────────────────────────────────────────
   # Opcional: herramientas útiles para monitorear/controlar la GPU

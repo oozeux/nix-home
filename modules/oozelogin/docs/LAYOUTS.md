@@ -57,7 +57,7 @@ Todo archivo de `Layouts/` debe ofrecer esta interfaz:
 
 ## Qué contiene cada layout
 
-**SingleCardLayout**: destellos de fondo, barra superior plana, tarjeta `Glass` (nombre, `ClockBlock`, `PasswordField`, `StatusLine`, `ControlBar`, `UserChips`), `AvatarHalo` montado sobre el borde superior, barra de controles opcional debajo, frase inferior y puntos de fondo. Opción `singleToolbar`: `inside` (dentro de la tarjeta) o `below` (en una pastilla debajo).
+**SingleCardLayout**: barra superior plana, tarjeta `Glass` (nombre, `ClockBlock`, `PasswordField`, `StatusLine`, `ControlBar`, `UserChips`), `AvatarHalo` montado sobre el borde superior, barra de controles opcional debajo, frase inferior y puntos de fondo. Opción `singleToolbar`: `inside` (dentro de la tarjeta) o `below` (en una pastilla debajo).
 
 **SplitLayout**: `ClockBlock`, divisor degradado, tarjeta de acceso y panel lateral con `SessionDrop`, `LanguageDrop` y dos `PowerButton` en modo fila. El conjunto se centra y se ajusta si falta el reloj o el panel.
 
@@ -69,14 +69,11 @@ Todo archivo de `Layouts/` debe ofrecer esta interfaz:
 
 | Componente | Función |
 |---|---|
-| `Sparkle` | Estrella de cuatro puntas dibujada con `Shape`. |
-| `Sparkles` | Campo de estrellas con parpadeo suave. Se activa con `sparkles`. |
-| `SparkleDivider` | Línea con estrella central. |
-| `ClockBlock` | Hora, fecha, clima en línea y divisor. Propiedades `timeSize`, `dateSize`, `shadow`, `divider`. |
+| `ClockBlock` | Hora, fecha y clima en línea. Propiedades `timeSize`, `dateSize`, `shadow`. |
 | `PasswordField` | Campo de contraseña con sacudida de error, ojo y aviso de bloqueo de mayúsculas. |
 | `StatusLine` | Mensaje de estado, error o vista previa. |
 | `UserChips` | Lista de usuarios cuando hay más de uno. |
-| `AvatarHalo` | Avatar con anillo exterior y destellos. |
+| `AvatarHalo` | Avatar con anillo exterior. |
 | `DropPill` | Pastilla desplegable genérica. `up` abre hacia arriba, `block` ocupa todo el ancho, `popupAlign` alinea el menú. |
 | `SessionDrop` | Selector de sesión. |
 | `LanguageDrop` | Selector de teclado e idioma de la interfaz. |
@@ -96,7 +93,6 @@ Todo archivo de `Layouts/` debe ofrecer esta interfaz:
 | `showPower` | Todos |
 | `showInfoPanel`, `showStats`, `showFooter`, `sessionPanelExpanded` | Solo Clásico |
 | `singleToolbar` | Solo Tarjeta única |
-| `sparkles` | Todos menos Clásico |
 
 ## Cómo añadir un estilo nuevo
 

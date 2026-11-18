@@ -21,12 +21,6 @@ Item {
   function dismiss() { root.menu = "" }
   function toggleMenu(name) { root.menu = root.menu === name ? "" : name }
 
-  Sparkles {
-    anchors.fill: parent
-    visible: Config.v.sparkles
-    u: root.u
-  }
-
   TopBar {
     id: topBar
     flat: true

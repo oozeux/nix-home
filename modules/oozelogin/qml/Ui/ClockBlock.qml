@@ -11,7 +11,6 @@ ColumnLayout {
   property real timeSize: 96
   property real dateSize: 20
   property bool shadow: false
-  property bool divider: true
 
   readonly property color timeColor: Qt.tint(Config.text, Qt.rgba(Config.primary.r, Config.primary.g, Config.primary.b, 0.38))
 
@@ -71,12 +70,5 @@ ColumnLayout {
       font.pixelSize: 15 * root.u
       color: Config.textSoft
     }
-  }
-
-  SparkleDivider {
-    Layout.alignment: Qt.AlignHCenter
-    Layout.topMargin: 10 * root.u
-    visible: root.divider
-    u: root.u
   }
 }

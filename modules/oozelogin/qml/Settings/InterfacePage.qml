@@ -9,6 +9,7 @@ Page {
     hint: Strings.t("layoutSectionHint")
 
     FormRow {
+      last: Config.v.layoutStyle !== "single"
       label: Strings.t("layoutStyle")
       Choice {
         model: [
@@ -24,6 +25,7 @@ Page {
 
     FormRow {
       visible: Config.v.layoutStyle === "single"
+      last: true
       label: Strings.t("singleToolbar")
       Choice {
         model: [
@@ -34,8 +36,6 @@ Page {
         onPicked: v => Config.set("singleToolbar", v)
       }
     }
-
-    ToggleRow { label: Strings.t("sparkles"); key: "sparkles"; last: true }
   }
 
   Section {
