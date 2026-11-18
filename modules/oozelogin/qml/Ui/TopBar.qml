@@ -9,9 +9,11 @@ Rectangle {
   id: root
 
   property real u: 1
+  property bool flat: false
+  property bool showRight: true
 
   height: 52 * u
-  color: Qt.rgba(Config.bg.r, Config.bg.g, Config.bg.b, 0.55)
+  color: root.flat ? "transparent" : Qt.rgba(Config.bg.r, Config.bg.g, Config.bg.b, 0.55)
 
   SystemClock {
     id: clock
@@ -21,6 +23,7 @@ Rectangle {
   Rectangle {
 
     antialiasing: true
+    visible: !root.flat
     anchors.left: parent.left
     anchors.right: parent.right
     anchors.bottom: parent.bottom
@@ -46,13 +49,13 @@ Rectangle {
     }
     Rectangle {
       antialiasing: true
-      visible: Config.v.subtitle !== ""
+      visible: !root.flat && Config.v.subtitle !== ""
       Layout.preferredWidth: 1
       Layout.preferredHeight: 20 * root.u
       color: Qt.rgba(1, 1, 1, 0.18)
     }
     Label {
-      visible: Config.v.subtitle !== ""
+      visible: !root.flat && Config.v.subtitle !== ""
       text: Config.v.subtitle
       font.pixelSize: 15 * root.u
       color: Config.subtext
@@ -60,6 +63,7 @@ Rectangle {
   }
 
   RowLayout {
+    visible: root.showRight
     anchors.right: parent.right
     anchors.rightMargin: 32 * root.u
     anchors.verticalCenter: parent.verticalCenter

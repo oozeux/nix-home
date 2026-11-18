@@ -9,6 +9,10 @@ Greeter para greetd hecho con Quickshell, con ventana de configuración propia y
 3. Asegúrate de que tu usuario esté en el grupo `users` (o cambia `services.oozelogin.group`).
 4. `sudo nixos-rebuild switch`
 
+## Estilos de pantalla
+
+Hay cuatro estilos: `single` (por defecto), `split`, `ambient` y `classic`. Se eligen en Ajustes > Interfaz o con `services.oozelogin.settings.layoutStyle`. Detalles y guía para crear más en [docs/LAYOUTS.md](docs/LAYOUTS.md).
+
 ## Comandos
 
 | Comando | Qué hace |

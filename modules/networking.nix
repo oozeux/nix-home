@@ -29,20 +29,22 @@
 
   networking.networkmanager.enable = true;
 
-  #Firewall Example
-
-  # networking.firewall = {
-  #   allowedTCPPorts = [
-  #   ];
+  #  networking.firewall = {
+  # #   allowedTCPPorts = [
+  # #     25565
+  # #   ];
   #   allowedUDPPorts = [
+  #     49983
+  #     50509
   #   ];
   # };
-
+  
   # ─────────────────────────────────────────────
   # Timezone
   # ─────────────────────────────────────────────
 
   time.timeZone = "America/Phoenix";
+  #time.timeZone = "America/Mexico_City";
 
   # ─────────────────────────────────────────────
   # Locale

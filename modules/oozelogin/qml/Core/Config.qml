@@ -40,6 +40,9 @@ Singleton {
     panelBlur: true,
     panelOpacity: 52,
     panelRadius: 22,
+    layoutStyle: "single",
+    singleToolbar: "inside",
+    sparkles: true,
     showTopBar: true,
     showInfoPanel: true,
     showClock: true,
@@ -100,6 +103,8 @@ Singleton {
   readonly property color error: root.colors.error
   readonly property color textSoft: Qt.tint(root.text, Qt.rgba(root.bg.r, root.bg.g, root.bg.b, 0.03))
   readonly property color iconSoft: Qt.tint(root.text, Qt.rgba(root.bg.r, root.bg.g, root.bg.b, 0.22))
+
+  readonly property bool weatherWanted: root.v.showWeather && (root.v.layoutStyle === "classic" ? root.v.showInfoPanel : root.v.showClock)
 
   readonly property string fontFamily: root.v.font !== "" ? root.v.font : Qt.application.font.family
 

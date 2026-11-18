@@ -401,7 +401,8 @@ in
       polkit.addRule(function(action, subject) {
         if (subject.user == "greeter" &&
             (action.id.indexOf("org.freedesktop.login1.power-off") == 0 ||
-             action.id.indexOf("org.freedesktop.login1.reboot") == 0)) {
+             action.id.indexOf("org.freedesktop.login1.reboot") == 0 ||
+             action.id.indexOf("org.freedesktop.login1.suspend") == 0)) {
           return polkit.Result.YES;
         }
       });

@@ -40,4 +40,5 @@ QtObject {
   readonly property string play: cp(0xF040A)
   readonly property string translate: cp(0xF05CA)
   readonly property string users: cp(0xF0849)
+  readonly property string moon: cp(0xF0594)
 }

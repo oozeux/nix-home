@@ -5,7 +5,42 @@ import "../Ui"
 
 Page {
   Section {
+    title: Strings.t("layoutSection")
+    hint: Strings.t("layoutSectionHint")
+
+    FormRow {
+      label: Strings.t("layoutStyle")
+      Choice {
+        model: [
+          { value: "single", label: Strings.t("layoutSingle") },
+          { value: "split", label: Strings.t("layoutSplit") },
+          { value: "ambient", label: Strings.t("layoutAmbient") },
+          { value: "classic", label: Strings.t("layoutClassic") }
+        ]
+        current: Config.v.layoutStyle
+        onPicked: v => Config.set("layoutStyle", v)
+      }
+    }
+
+    FormRow {
+      visible: Config.v.layoutStyle === "single"
+      label: Strings.t("singleToolbar")
+      Choice {
+        model: [
+          { value: "inside", label: Strings.t("toolbarInside") },
+          { value: "below", label: Strings.t("toolbarBelow") }
+        ]
+        current: Config.v.singleToolbar
+        onPicked: v => Config.set("singleToolbar", v)
+      }
+    }
+
+    ToggleRow { label: Strings.t("sparkles"); key: "sparkles"; last: true }
+  }
+
+  Section {
     title: Strings.t("panels")
+    hint: Strings.t("panelsHint")
 
     ToggleRow { label: Strings.t("showTopBar"); key: "showTopBar" }
     ToggleRow { label: Strings.t("showInfoPanel"); key: "showInfoPanel" }

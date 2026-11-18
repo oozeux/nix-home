@@ -34,14 +34,17 @@
       fuse
       e2fsprogs
     ];
+
   # ─────────────────────────────────────────────
   # Storage
   # ─────────────────────────────────────────────
 
   # Mount disks
   services.udisks2.enable = true;
-  # (papelera, montaje, redes)
+
+  # papelera, montaje, redes
   services.gvfs.enable = true;
+
   # ─────────────────────────────────────────────
   # Printing & Fonts
   # ─────────────────────────────────────────────
@@ -57,7 +60,7 @@
     mplus-outline-fonts.githubRelease
     migu                           # opcional, japonés
     (google-fonts.override {
-      fonts = [ "Silkscreen" "DotGothic16" "VT323" "Lilita One" "Fredoka" ];
+      fonts = [ "Silkscreen" "DotGothic16" "VT323" ];
     })
   ];
 }

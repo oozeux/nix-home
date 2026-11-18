@@ -6,7 +6,7 @@
     # Proton compatibility
     protonplus
     protontricks
-
+    
     # Wine Compatibility
     wineWow64Packages.stable
     #winetricks

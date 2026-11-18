@@ -59,10 +59,16 @@ Singleton {
 
   function reboot() { powerProc.command = ["systemctl", "reboot"]; powerProc.running = true }
   function poweroff() { powerProc.command = ["systemctl", "poweroff"]; powerProc.running = true }
+  function suspend() { powerProc.command = ["systemctl", "suspend"]; powerProc.running = true }
 
   function cycleLayout() {
     if (root.layouts.length < 2) return
-    root.layoutIndex = (root.layoutIndex + 1) % root.layouts.length
+    root.setLayout((root.layoutIndex + 1) % root.layouts.length)
+  }
+
+  function setLayout(index) {
+    if (index < 0 || index >= root.layouts.length) return
+    root.layoutIndex = index
     if (root.compositor === "hyprland")
       layoutProc.command = ["hyprctl", "switchxkblayout", "all", String(root.layoutIndex)]
     else if (root.compositor === "niri")
@@ -75,13 +81,13 @@ Singleton {
 
   function refreshWeather() {
     const city = String(Config.v.weatherCity || "").trim()
-    if (!root.active || city === "" || !Config.v.showWeather || !Config.v.showInfoPanel) { root.weatherOk = false; return }
+    if (!root.active || city === "" || !Config.weatherWanted) { root.weatherOk = false; return }
     if (root.weatherCityResolved === city && root.weatherLat !== 0) { wxProc.running = false; wxProc.running = true; return }
     geoProc.running = false
     geoProc.running = true
   }
 
-  readonly property string weatherSig: Config.v.weatherCity + "|" + Config.v.weatherFahrenheit + "|" + Config.v.showWeather + "|" + Config.v.showInfoPanel
+  readonly property string weatherSig: Config.v.weatherCity + "|" + Config.v.weatherFahrenheit + "|" + Config.weatherWanted
   onWeatherSigChanged: { if (Config.loaded) root.refreshWeather() }
   onActiveChanged: { if (root.active && Config.loaded) root.refreshWeather() }
 

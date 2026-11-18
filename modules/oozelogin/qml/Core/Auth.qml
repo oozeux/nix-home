@@ -22,6 +22,13 @@ Singleton {
   property int failCount: 0
   property bool firstAnswered: false
 
+  readonly property var currentUser: {
+    for (const user of Sys.users) if (user.name === root.username) return user
+    return null
+  }
+  readonly property string shownName: root.currentUser && root.currentUser.real !== "" ? root.currentUser.real : root.username
+  readonly property string avatarSource: root.currentUser && root.currentUser.avatar !== "" ? Config.avatarUrl(root.currentUser.avatar) : ""
+
   readonly property string statusText: {
     if (root.launching) return Strings.t("starting")
     if (root.busy) return Strings.t("checking")

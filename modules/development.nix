@@ -8,15 +8,16 @@
     nix-direnv.enable = true;
   };
 
-  # Docker Virtualization
-    virtualisation.docker = {
-      enable = true;
-      rootless = {
-        enable = true;
-        setSocketVariable = true;
-      };
-    };
-    users.users.oozenix.extraGroups = [ "docker" ];
+  # # Docker Virtualization
+  #   virtualisation.docker = {
+  #     enable = true;
+  #     rootless = {
+  #       enable = true;
+  #       setSocketVariable = true;
+  #     };
+  #   };
+  #   users.users.oozenix.extraGroups = [ "docker" ];
+
 
   # NixPackages
    environment.systemPackages = with pkgs; [
@@ -35,11 +36,11 @@
     bbe
     mpv-unwrapped
     libsecret
-    #aria2
+    aria2
 
     # Metadata Tools
-    #c2patool
-    #exiftool
+    # c2patool
+    # exiftool
 
     # Java 
     openjdk
@@ -50,11 +51,11 @@
     # Python
     python3Packages.pip
     #python314Packages.pandas
-    #python314Packages.pip
-    #python314Packages.pyside6
+    # python314Packages.pip
+    # python314Packages.pyside6
 
-    # PHP
-    php 
+    # PHP 
+    # php
 
     # Rust
     rustc
@@ -83,6 +84,8 @@
     wget
     #tree
 
+    # Agents
+    
     ## Wayland
     #  wayland-protocols
     #  wayland.dev

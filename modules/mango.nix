@@ -34,7 +34,7 @@
   };
   xdg.portal.wlr.settings.screencast = {
   chooser_type = "none";
-  output_name = "HDMI-A-1";   # tu monitor: mmsg get all-monitors
+  output_name = "HDMI-A-1";   # mmsg get all-monitors
 };
 
 }
