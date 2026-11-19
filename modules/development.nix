@@ -36,7 +36,7 @@
     bbe
     mpv-unwrapped
     libsecret
-    aria2
+    #aria2
 
     # Metadata Tools
     # c2patool
