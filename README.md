@@ -94,6 +94,61 @@ deja de funcionar: `sudo nixos-rebuild switch --rollback`.
 Si descargaste el repositorio como ZIP, el actualizador no funciona
 (no hay git): clónalo para recibir actualizaciones.
 
+
+## Actualización Manual
+
+Para obtener los últimos cambios de este repositorio sin perder tus propias
+modificaciones de forma manual (nombre de usuario, configuración de hardware, etc.):
+
+```bash
+cd ~/nix-home
+git stash            # guarda tus cambios locales
+git pull             # descarga la versión más reciente
+git stash pop        # vuelve a aplicar tus cambios
+```
+
+Si `git stash pop` informa de conflictos, abre los archivos marcados,
+conserva los valores que correspondan a tu máquina y después ejecuta
+`git add` sobre ellos.
+
+Luego revisa los cambios y aplica la configuración:
+
+```bash
+git diff HEAD@{1} -- flake.lock     # opcional: muestra qué entradas cambiaron
+sudo nixos-rebuild dry-build --flake .#nixos
+sudo nixos-rebuild switch --flake .#nixos
+```
+
+Notas:
+
+- Si la actualización añade archivos nuevos que mencionan `oozenix`, 
+
+Averigua tu nombre de usuario actual:
+
+```bash
+whoami
+```
+
+Sustituye el nombre de ejemplo `oozenix` por el tuyo en todos los lugares
+donde esté escrito directamente (principalmente en `modules/users.nix` y
+`home/default.nix`). Para encontrar todas las apariciones desde la raíz del
+repositorio, ejecuta:
+
+```bash
+grep -RIn --exclude-dir=.git 'oozenix' .
+```
+
+No reemplaces todas las coincidencias a ciegas: comprueba si cada aparición
+es un nombre de usuario, una ruta (`/home/oozenix`) o una cadena sin relación.
+
+- Si descargaste el repositorio como ZIP en lugar de clonarlo, `git pull` no
+  estará disponible. Descarga el ZIP nuevo y copia sobre él tus archivos
+  modificados (`hardware-configuration.nix`, `modules/users.nix`,
+  `home/default.nix`, etc.), o cambia a `git clone` para facilitar futuras
+  actualizaciones.
+- Si algo deja de funcionar, vuelve a la generación anterior con
+  `sudo nixos-rebuild switch --rollback`.
+
 ## Comandos habituales
 
 Ejecuta estos comandos desde el directorio del repositorio.
