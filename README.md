@@ -4,10 +4,10 @@ Una configuración modular de NixOS que utiliza **Flakes** y **Home Manager**,
 con Hyprland, niri, MangoWM, QuickShell, compatibilidad con NVIDIA,
 herramientas para videojuegos y paquetes de desarrollo.
 
-Este repositorio está adaptado a mi propio PC. **No lo apliques sin revisar
-primero los ajustes específicos de tu máquina.** Mis dotfiles de escritorio
+Este repositorio está adaptado a mi propio PC. **Adáptalo a tu máquina con
+`./install-nix-home.sh` antes de aplicarlo.** Mis dotfiles de escritorio
 se mantienen por separado en
-[dotfiles-nix](https://github.com/shizukutakahashi55-del/dotfiles-nix).
+[oozedots](https://github.com/oozeux/oozedots).
 
 ## Qué incluye
 
@@ -29,141 +29,70 @@ se mantienen por separado en
 
 Requisitos:
 
-- Una instalación existente de **NixOS 26.05**.
+- Una instalación existente de **NixOS 26.05** con acceso a internet.
 - Arquitectura `x86_64-linux` y UEFI.
-- Git y Flakes habilitados.
-
-Esta configuración incluye valores específicos del hardware y del usuario.
-Revisa, como mínimo, los siguientes archivos:
-
-- `hardware-configuration.nix`
-- `modules/users.nix` y `home/default.nix`
-- `modules/networking.nix`
-- `flake.nix` y `configuration.nix`
-- Los módulos relacionados con la GPU y el sistema de archivos
+- Git. Los flakes se habilitan solos durante la ejecución si hace falta.
 
 ## Instalación
-
-### 1. Clona el repositorio
 
 ```bash
 git clone https://github.com/oozeux/nix-home.git ~/nix-home
 cd ~/nix-home
+./install-nix-home.sh
 ```
 
-### 2. Genera la configuración de hardware
+El instalador es interactivo: detecta los datos de tu equipo, te los
+muestra junto con el cambio exacto que haría (diff) y pregunta antes de
+aplicarlo. Cada archivo editado se respalda en
+`~/.local/share/nix-home/backups`.
 
-No reutilices el archivo `hardware-configuration.nix` del repositorio en
-otra máquina. Sustitúyelo por el correspondiente a tu instalación actual:
+| Fase | Qué hace |
+|---|---|
+| Revisando | Comprueba NixOS, UEFI, git, sudo y flakes. |
+| Usuario | Reemplaza `oozenix` por tu usuario (y su carpeta `/home`) y ajusta el nombre visible. |
+| Equipo | Cambia `networking.hostName` y el nombre del equipo en `flake.nix`. |
+| Sistema | Propone la zona horaria, el idioma y el teclado detectados. |
+| Hardware | Activa solo el módulo de GPU que corresponde (NVIDIA o AMD), ajusta CUDA en OBS y regenera `hardware-configuration.nix`. |
+| Compilar | Registra archivos nuevos en git, ejecuta `dry-build` y te deja elegir `boot`, `test` o `switch`. |
+| Opcional | Abre el [instalador gráfico](#instalador-gráfico) de paquetes. |
 
-```bash
-sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix
-```
+Opciones: `--no-apply` personaliza sin compilar ni aplicar; `--yes` usa las
+respuestas sugeridas y nunca aplica el sistema.
 
-Revisa el archivo generado antes de continuar.
+`system.stateVersion` y `home.stateVersion` no se tocan.
 
-### 3. Cambia el nombre de usuario
+### Instalación manual
 
-Averigua tu nombre de usuario actual:
-
-```bash
-whoami
-```
-
-Sustituye el nombre de ejemplo `oozenix` por el tuyo en todos los lugares
-donde esté escrito directamente (principalmente en `modules/users.nix` y
-`home/default.nix`). Para encontrar todas las apariciones desde la raíz del
-repositorio, ejecuta:
-
-```bash
-grep -RIn --exclude-dir=.git 'oozenix' .
-```
-
-No reemplaces todas las coincidencias a ciegas: comprueba si cada aparición
-es un nombre de usuario, una ruta (`/home/oozenix`) o una cadena sin relación.
-
-### 4. Adapta el resto de la configuración
-
-Actualiza el nombre del equipo (hostname), la zona horaria, la configuración
-regional, la GPU y cualquier ajuste específico del sistema de archivos para
-que coincidan con tu máquina.
-
-El flake define el equipo como `nixos`, por lo que los comandos de este README
-utilizan `.#nixos`. Si cambias el nombre del equipo en `flake.nix`, actualiza
-también los comandos según corresponda.
-
-Si tu sistema utiliza AMD, revisa las importaciones de GPU en
-`configuration.nix` y el módulo de OBS antes de compilar. No habilites ambas
-configuraciones de GPU al mismo tiempo.
-
-### 5. Añade los archivos nuevos a Git
-
-Flakes solo detecta los archivos registrados en Git. Por eso, cualquier
-archivo que crees o renombres debe añadirse al índice antes de reconstruir
-la configuración. Primero revisa qué ha cambiado:
-
-```bash
-git status --short
-```
-
-Después, añade los archivos que quieras incluir:
-
-```bash
-git add hardware-configuration.nix configuration.nix flake.nix modules home
-```
-
-### 6. Compila y aplica la configuración
-
-Comprueba que la configuración se pueda compilar:
-
-```bash
-sudo nixos-rebuild dry-build --flake .#nixos
-```
-
-Después, actívala:
-
-```bash
-sudo nixos-rebuild switch --flake .#nixos
-```
-
-Reinicia si es necesario. Home Manager está integrado en la configuración
-de NixOS, así que no necesitas ejecutar `home-manager switch` por separado.
+1. `sudo nixos-generate-config --show-hardware-config > hardware-configuration.nix`
+2. Sustituye `oozenix` por tu usuario (`grep -RIn --exclude-dir=.git 'oozenix' .`)
+   y revisa `modules/networking.nix`, `flake.nix` y los módulos de GPU.
+3. `git add` de los archivos nuevos (los flakes solo ven lo registrado en git).
+4. `sudo nixos-rebuild dry-build --flake .#nixos` y después `switch`.
 
 ## Actualización
 
-Para obtener los últimos cambios de este repositorio sin perder tus propias
-modificaciones (nombre de usuario, configuración de hardware, etc.):
-
 ```bash
 cd ~/nix-home
-git stash            # guarda tus cambios locales
-git pull             # descarga la versión más reciente
-git stash pop        # vuelve a aplicar tus cambios
+./update-nix-home.sh
 ```
 
-Si `git stash pop` informa de conflictos, abre los archivos marcados,
-conserva los valores que correspondan a tu máquina y después ejecuta
-`git add` sobre ellos.
+| Paso | Qué hace |
+|---|---|
+| Revisando | Consulta el remoto y lista los commits nuevos. |
+| Repositorio | Aparta tus cambios (stash), actualiza y los reaplica. Si hay conflicto, el repositorio queda limpio y tus cambios siguen en el stash. |
+| Tus valores | Restaura tu `hardware-configuration.nix` y reaplica usuario, equipo, zona horaria, idioma, teclado y GPU guardados por el instalador, también en archivos nuevos. |
+| Dependencias | Opcional: `nix flake update`. |
+| Compilar | Igual que en la instalación. |
 
-Luego revisa los cambios y aplica la configuración:
+Opciones: `--check` solo informa; `--deps` actualiza también `flake.lock`;
+`--no-apply` omite la compilación; `--force` continúa sin commits nuevos;
+`--yes` usa las respuestas sugeridas.
 
-```bash
-git diff HEAD@{1} -- flake.lock     # opcional: muestra qué entradas cambiaron
-sudo nixos-rebuild dry-build --flake .#nixos
-sudo nixos-rebuild switch --flake .#nixos
-```
+Los valores guardados están en `~/.local/share/nix-home/state`. Si algo
+deja de funcionar: `sudo nixos-rebuild switch --rollback`.
 
-Notas:
-
-- Si la actualización añade archivos nuevos que mencionan `oozenix`, vuelve
-  a ejecutar el comando `grep` del [paso 3](#3-cambia-el-nombre-de-usuario).
-- Si descargaste el repositorio como ZIP en lugar de clonarlo, `git pull` no
-  estará disponible. Descarga el ZIP nuevo y copia sobre él tus archivos
-  modificados (`hardware-configuration.nix`, `modules/users.nix`,
-  `home/default.nix`, etc.), o cambia a `git clone` para facilitar futuras
-  actualizaciones.
-- Si algo deja de funcionar, vuelve a la generación anterior con
-  `sudo nixos-rebuild switch --rollback`.
+Si descargaste el repositorio como ZIP, el actualizador no funciona
+(no hay git): clónalo para recibir actualizaciones.
 
 ## Comandos habituales
 
@@ -251,6 +180,9 @@ con `oozelogin-preview` antes de aplicarlos.
 ├── flake.lock
 ├── configuration.nix
 ├── hardware-configuration.nix
+├── install-nix-home.sh   # Instalador interactivo
+├── update-nix-home.sh    # Actualizador
+├── scripts/              # Interfaz de terminal y funciones compartidas
 ├── modules/       # Módulos del sistema, controladores, servicios y OozeLogin
 ├── home/          # Configuración de Home Manager y aplicaciones del usuario
 └── installer/     # Interfaz de QuickShell y backend de Rust
