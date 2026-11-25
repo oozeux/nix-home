@@ -59,13 +59,21 @@
     };
 
     # ==========================================================================
+    # OozeLogin
+    # ==========================================================================
+    oozelogin = {
+      url = "github:oozeux/oozelogin";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # ==========================================================================
     # MANGOWM
     # ==========================================================================
-
     #  mangowm = {
     #    url = "github:mangowm/mango";
     #    inputs.nixpkgs.follows = "nixpkgs-unstable";
     #  };
+    
   };
 
   outputs = { self, nixpkgs, nixpkgs-unstable, ... }@inputs: {

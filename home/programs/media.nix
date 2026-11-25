@@ -13,7 +13,8 @@
     nomacs
     imagemagick
     #inkscape-with-extensions
-    
+    #gimp
+
     #Installer
   ];
 }

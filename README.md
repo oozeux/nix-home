@@ -210,10 +210,9 @@ compilación mediante `CARGO_TARGET_DIR`.
 
 ## OozeLogin (pantalla de inicio de sesión)
 
-`modules/greetd.nix` habilita OozeLogin, una pantalla de bienvenida de
+`modules/oozelogin.nix` habilita OozeLogin, una pantalla de bienvenida de
 QuickShell para greetd que cuenta con su propia ventana de ajustes.
-Reemplaza a tuigreet. Encontrarás más detalles en
-`modules/oozelogin/README.md`.
+Reemplaza a tuigreet.
 
 | Comando | Función |
 |---|---|
@@ -238,7 +237,7 @@ con `oozelogin-preview` antes de aplicarlos.
 ├── install-nix-home.sh   # Instalador interactivo
 ├── update-nix-home.sh    # Actualizador
 ├── scripts/              # Interfaz de terminal y funciones compartidas
-├── modules/       # Módulos del sistema, controladores, servicios y OozeLogin
+├── modules/       # Módulos del sistema, controladores, servicios
 ├── home/          # Configuración de Home Manager y aplicaciones del usuario
 └── installer/     # Interfaz de QuickShell y backend de Rust
 ```

@@ -8,11 +8,11 @@
   nixpkgs.overlays = [
     (final: prev: {
       suwayomi-server = prev.suwayomi-server.overrideAttrs (oldAttrs: {
-        version = "2.4.2366";
+        version = "2.4.2373";
 
         src = final.fetchurl {
-          url = "https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.4.2366/Suwayomi-Server-v2.4.2366.jar";
-          hash = "sha256-r5/rIK+dfr6eMHaebG68f8erHERziNQuAoCx2l/ge/0=";
+          url = "https://github.com/Suwayomi/Suwayomi-Server/releases/download/v2.4.2373/Suwayomi-Server-v2.4.2373.jar";
+          hash = "sha256-3QXVI8x4W3rPkMn+rAvITFPV+zr1qyozZTZG4gduUhc=";
         };
       });
     })

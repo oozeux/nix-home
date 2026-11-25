@@ -31,7 +31,7 @@
 
   #  networking.firewall = {
   # #   allowedTCPPorts = [
-  # #     25565
+  # #     25565 #Vtube Studio Inalambrico
   # #   ];
   #   allowedUDPPorts = [
   #     49983

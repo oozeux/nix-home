@@ -1,8 +1,8 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
-  imports = [ ./oozelogin ];
-
+  imports = [ inputs.oozelogin.nixosModules.default ];
+  
   services.oozelogin = {
     enable = true;
     compositor = "hyprland";

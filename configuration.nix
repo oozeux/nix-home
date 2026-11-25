@@ -17,13 +17,14 @@
     ./modules/desktop.nix
     ./modules/development.nix
     ./modules/files.nix
-    ./modules/greetd.nix
     ./modules/glaunchers.nix
     ./modules/hyprland.nix
+    ./modules/linuxpkgs.nix
     ./modules/maintenance.nix
     #./modules/mango.nix
     ./modules/networking.nix
     #./modules/niri.nix
+    ./modules/oozelogin.nix
     ./modules/polkit.nix
     ./modules/qemu.nix
     ./modules/quickshell.nix

@@ -35,7 +35,7 @@
     ./programs/system.nix
 
     # ─────────────────────────────────────────────
-    # Idiomas
+    # Idiomas Teclado
     # ─────────────────────────────────────────────
 
     #./programs/fcitx5.nix
