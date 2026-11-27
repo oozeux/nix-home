@@ -83,8 +83,7 @@
     curl
     wget
     #tree
-
-    # Agents
+    zenity
     
     ## Wayland
     #  wayland-protocols

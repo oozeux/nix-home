@@ -12,9 +12,11 @@
     # ==========================================================================
     # MILLENNIUM
     # ==========================================================================
-    # millennium.url =
-    #   "github:SteamClientHomebrew/Millennium?dir=packages/nix";
-
+    # millennium = {
+    #  url = "github:SteamClientHomebrew/Millennium?dir=packages/nix";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
+    
     # ==========================================================================
     # TwintailLauncher
     # ==========================================================================
@@ -40,7 +42,8 @@
     # ==========================================================================
     # HYPRLAND
     # ==========================================================================
-    hyprnix.url = "github:hyprwm/hyprnix";
+    # hyprnix.url = "github:hyprwm/hyprnix";
+    hyprland.url = "github:hyprwm/Hyprland";
 
     # ==========================================================================
     # HOME MANAGER
@@ -73,6 +76,14 @@
     #    url = "github:mangowm/mango";
     #    inputs.nixpkgs.follows = "nixpkgs-unstable";
     #  };
+
+    # ==========================================================================
+    # UMBRIEL
+    # ==========================================================================
+    # umbriel = {
+    #   url = "github:noctalia-dev/umbriel";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
     
   };
 

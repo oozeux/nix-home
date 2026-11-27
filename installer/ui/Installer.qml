@@ -16,6 +16,19 @@ FloatingWindow {
     property string channel: Quickshell.env("NIXHOME_CHANNEL") ?? ""
     property bool repoReady: false
     property var changed: []
+    property var pending: []
+    property var pendingMap: ({})
+    property string fingerprint: ""
+    property bool bootPending: false
+    property string validatedFp: ""
+    property string testedFp: ""
+    property string runKind: ""
+    property string runFp: ""
+    property string failedAt: ""
+    property bool gateOk: false
+    property string applyMode: "switch"
+    property string resultKind: ""
+    property string resultText: ""
     property var targets: []
     property var inConfig: ({})
     property var allFiles: []
@@ -28,10 +41,13 @@ FloatingWindow {
     property bool ready: false
     property bool ddOpen: false
 
+    readonly property string stage: pending.length === 0 ? "clean"
+        : (testedFp !== "" && testedFp === fingerprint ? "tested"
+        : (validatedFp !== "" && validatedFp === fingerprint ? "validated" : "pending"))
+
     readonly property var tabInfo: [
-        { title: "Paquetes", sub: "Busca en nixpkgs y añádelos a tu configuración" },
-        { title: "Cambios", sub: "Revisa todo lo que has modificado" },
-        { title: "Terminal", sub: "Valida, prueba y aplica con salida en vivo" },
+        { title: "Buscar y explorar paquetes", sub: "Encuentra, prueba sin instalar y añade aplicaciones desde Nixpkgs" },
+        { title: "Revisar y aplicar", sub: "Valida, prueba y aplica tus cambios paso a paso, con la salida en vivo" },
         { title: "Editor", sub: "Edita cualquier archivo .nix del repositorio" },
         { title: "Ajustes", sub: "Paletas de colores, formas, texto y ventana" }
     ]
@@ -60,6 +76,13 @@ FloatingWindow {
             win.host = res.data.host
             if (win.channel === "" && res.data.channel !== "") win.channel = res.data.channel
             win.changed = res.data.changed
+            const pend = res.data.pending ?? []
+            win.pending = pend
+            win.fingerprint = res.data.fingerprint ?? ""
+            win.bootPending = res.data.bootPending ?? false
+            const pm = {}
+            for (const p of pend) pm[p.attr] = p.action
+            win.pendingMap = pm
             win.repoReady = true
             backend.call("targets", [], t => {
                 if (!t.ok) { win.toast(t.error, false); return }
@@ -76,7 +99,37 @@ FloatingWindow {
         })
     }
 
+    function expandPath(p) {
+        const h = Quickshell.env("HOME") ?? ""
+        const q = p.trim()
+        if (q === "~") return h
+        return q.indexOf("~/") === 0 ? h + q.slice(1) : q
+    }
+
+    function setRepo(path) {
+        if (runner.running) { win.toast("Hay un comando en ejecución: espera a que termine.", false); return }
+        const prev = backend.repo
+        const next = win.expandPath(path)
+        backend.repo = next
+        backend.call("status", [], res => {
+            if (!res.ok) { backend.repo = prev; win.toast(res.error, false); return }
+            Pal.repoPath = next
+            win.validatedFp = ""
+            win.testedFp = ""
+            win.resetResult()
+            win.refresh()
+            win.toast("Carpeta de configuración: " + win.shortPath(res.data.repo))
+        })
+    }
+
+    function resetResult() {
+        win.resultKind = ""
+        win.resultText = ""
+        win.failedAt = ""
+    }
+
     function addPackage(attr, file) {
+        win.resetResult()
         backend.call("add", [file, attr], res => {
             if (res.ok) win.toast("＋ " + attr + " → " + file)
             else win.toast(res.error, false)
@@ -85,6 +138,7 @@ FloatingWindow {
     }
 
     function removePackage(attr, file) {
+        win.resetResult()
         backend.call("remove", [file, attr], res => {
             if (res.ok) win.toast("− " + attr + " ← " + file)
             else win.toast(res.error, false)
@@ -93,6 +147,7 @@ FloatingWindow {
     }
 
     function revertAll() {
+        win.resetResult()
         backend.call("revert", [], res => {
             if (res.ok) win.toast("Cambios deshechos (" + res.data.length + " archivo(s))")
             else win.toast(res.error, false)
@@ -101,8 +156,13 @@ FloatingWindow {
     }
 
     function openFile(rel, line) {
-        win.tab = 3
+        win.tab = 2
         Qt.callLater(() => editor.open(rel, line))
+    }
+
+    function showOutput() {
+        win.tab = 1
+        changes.view = "log"
     }
 
     function openDropdown(src, model, value, openUp, cb) {
@@ -141,32 +201,101 @@ FloatingWindow {
         win.toast("Salida copiada")
     }
 
-    readonly property var steps: ({
-        "validate": { title: "nixos-rebuild dry-build", priv: false,
-            script: 'nixos-rebuild dry-build --flake "$REPO#$HOST" --show-trace' },
-        "test": { title: "nixos-rebuild test", priv: true,
-            script: 'sudo -A nixos-rebuild test --flake "$REPO#$HOST" --show-trace' },
-        "switch": { title: "nixos-rebuild switch", priv: true,
-            script: 'sudo -A nixos-rebuild switch --flake "$REPO#$HOST" --show-trace' }
+    readonly property string dryCmd: 'nixos-rebuild dry-build --flake "$REPO#$HOST" --show-trace'
+    readonly property var stepTitles: ({
+        "validate": "Validar (dry-build)",
+        "test": "Validar y probar (test)",
+        "switch": "Validar y aplicar (switch)",
+        "boot": "Validar y aplicar al arrancar (boot)"
     })
+
+    function stepScript(id) {
+        const gate = win.dryCmd + ' || { echo "##NH:invalid"; exit 1; }\necho "##NH:validated"'
+        if (id === "validate") return gate
+        return gate + '\nsudo -A nixos-rebuild ' + id + ' --flake "$REPO#$HOST" --show-trace || { echo "##NH:failed"; exit 1; }'
+    }
+
+    function launch(kind, title, script, env) {
+        if (runner.running) { win.toast("Ya hay un comando en ejecución.", false); return false }
+        win.runKind = kind
+        win.runFp = win.fingerprint
+        win.gateOk = false
+        win.resetResult()
+        return runner.start(title, script, env ?? ({}))
+    }
 
     function runStep(id) {
         if (!win.repoReady) { win.toast("Repositorio no detectado todavía.", false); return }
-        const s = win.steps[id]
-        if (s.priv && runner.sudoPassword === "") { win.pendingStep = id; pwDialog.open(); return }
-        win.tab = 2
-        runner.start(s.title, s.script, { "STEP": id })
+        if (win.stepTitles[id] === undefined) return
+        if (id !== "validate" && runner.sudoPassword === "") { win.pendingStep = id; pwDialog.open(); return }
+        win.launch(id, win.stepTitles[id], win.stepScript(id), { "STEP": id })
     }
 
-    function buildTest(attr) {
-        if (!win.repoReady) return
-        win.tab = 2
-        runner.start("nix build " + attr, 'nix build "$REPO#nixosConfigurations.$HOST.pkgs.$ATTR" --no-link --print-out-paths --show-trace', { "ATTR": attr })
+    function rebootNow() {
+        if (runner.sudoPassword === "") { win.pendingStep = "reboot"; pwDialog.open(); return }
+        win.launch("reboot", "Reiniciar", "sudo -A systemctl reboot", ({}))
+    }
+
+    function tryPackage(attr) {
+        if (!win.repoReady) { win.toast("Repositorio no detectado todavía.", false); return }
+        const script = [
+            'PKG="$REPO#nixosConfigurations.$HOST.pkgs.$ATTR"',
+            'echo "Descargando $ATTR solo para probarlo (no se instala)…"',
+            'nix build "$PKG" --no-link --show-trace || { echo "##NH:failed"; exit 1; }',
+            'PROG=$(nix eval --raw "$PKG.meta.mainProgram" 2>/dev/null) || PROG="${ATTR##*.}"',
+            'echo "Abriendo $PROG…"',
+            'setsid nohup nix shell "$PKG" -c "$PROG" >/dev/null 2>&1 &'
+        ].join("\n")
+        if (win.launch("try", "Probar " + attr + " (sin instalar)", script, { "ATTR": attr }))
+            win.toast("Preparando " + attr + "… se abrirá solo cuando esté listo")
+    }
+
+    function copyTryCommand(attr) {
+        win.copyText("nix shell \"" + win.repo + "#nixosConfigurations." + win.host + ".pkgs." + attr + "\"", "Comando copiado")
+    }
+
+    function onRunFinished(code) {
+        const k = win.runKind
+        if (k === "validate") {
+            win.failedAt = code === 0 ? "" : "validate"
+            win.resultKind = code === 0 ? "ok" : "err"
+            win.resultText = code === 0 ? "La configuración es válida. Todavía no se aplicó nada."
+                : "La validación encontró errores. No se aplicó nada: corrige el error y vuelve a intentarlo."
+        } else if (k === "test" || k === "switch" || k === "boot") {
+            if (code === 0) {
+                win.failedAt = ""
+                if (k === "test") {
+                    win.testedFp = win.runFp
+                    win.resultKind = "info"
+                    win.resultText = "Probado: los cambios están activos solo hasta que reinicies. Aplícalos para conservarlos."
+                } else {
+                    win.resultKind = k === "switch" ? "ok" : "info"
+                    win.resultText = k === "switch" ? "Listo: los cambios ya están aplicados y se conservarán al reiniciar."
+                        : "Listo: los cambios se activarán en el próximo arranque. El sistema actual no cambió."
+                    backend.call("accept", [], r => { win.validatedFp = ""; win.testedFp = ""; win.refresh() })
+                }
+            } else if (!win.gateOk) {
+                win.failedAt = "validate"
+                win.resultKind = "err"
+                win.resultText = "La validación encontró errores. No se aplicó nada: corrige el error y vuelve a intentarlo."
+            } else {
+                win.failedAt = "apply"
+                win.resultKind = "err"
+                const badPw = runner.outputMatches(/incorrect password|try again|no password|contraseña incorrecta|sorry/i)
+                if (badPw) runner.sudoPassword = ""
+                win.resultText = badPw ? "La contraseña no es correcta. Vuelve a intentarlo."
+                    : "La validación pasó, pero falló al aplicar. Revisa la salida."
+            }
+        } else if (k === "try") {
+            win.resultKind = code === 0 ? "ok" : "err"
+            win.resultText = code === 0 ? "Se abrió para probarlo. No quedó nada instalado: al cerrarlo desaparece."
+                : "No se pudo preparar el paquete para probarlo. Revisa la salida."
+        }
+        win.refresh()
     }
 
     function runFree(cmd) {
-        win.tab = 2
-        runner.start(cmd, cmd, ({}))
+        if (win.launch("free", cmd, cmd, ({}))) win.showOutput()
     }
 
     Binding { target: Pal; property: "autoCompact"; value: win.width < 900 }
@@ -178,12 +307,8 @@ FloatingWindow {
         cwd: win.repo
         repo: win.repo
         host: win.host
-        onFinished: (code, title) => {
-            win.refresh()
-            if (title === "nixos-rebuild switch" && code === 0) {
-                backend.call("accept", [], r => { win.toast("Configuración aplicada y aceptada ✔"); win.refresh() })
-            }
-        }
+        onFinished: (code, title) => win.onRunFinished(code)
+        onPhase: name => { if (name === "validated") { win.gateOk = true; win.validatedFp = win.runFp } }
     }
 
     FileView {
@@ -192,7 +317,11 @@ FloatingWindow {
         onLoaded: { try { win.categories = JSON.parse(text()) } catch (e) { win.categories = [] } }
     }
 
-    Component.onCompleted: { win.refresh(); readyTimer.start() }
+    Component.onCompleted: {
+        if (Pal.repoPath !== "") backend.repo = Pal.repoPath
+        win.refresh()
+        readyTimer.start()
+    }
     Timer { id: readyTimer; interval: 1500; onTriggered: win.ready = true }
 
     // Si cierras la ventana con el gestor de ventanas, el proceso también se apaga.
@@ -210,7 +339,6 @@ FloatingWindow {
     Shortcut { sequence: "Ctrl+2"; onActivated: win.tab = 1 }
     Shortcut { sequence: "Ctrl+3"; onActivated: win.tab = 2 }
     Shortcut { sequence: "Ctrl+4"; onActivated: win.tab = 3 }
-    Shortcut { sequence: "Ctrl+5"; onActivated: win.tab = 4 }
     Shortcut { sequence: "Ctrl+Q"; onActivated: win.requestClose(false) }
 
     Item {
@@ -268,12 +396,11 @@ FloatingWindow {
 
                     NavItem { app: win; tabIndex: 0; name: "Paquetes"; icon: "⌕" }
                     NavItem { app: win; tabIndex: 1; name: "Cambios"; icon: "±" }
-                    NavItem { app: win; tabIndex: 2; name: "Terminal"; icon: "▸" }
-                    NavItem { app: win; tabIndex: 3; name: "Editor"; icon: "✎" }
+                    NavItem { app: win; tabIndex: 2; name: "Editor"; icon: "✎" }
 
                     Item { Layout.fillHeight: true }
 
-                    NavItem { app: win; tabIndex: 4; name: "Ajustes"; icon: "⚙" }
+                    NavItem { app: win; tabIndex: 3; name: "Ajustes"; icon: "⚙" }
 
                     Rectangle { Layout.fillWidth: true; Layout.topMargin: 6; Layout.bottomMargin: 6; height: 1; color: Pal.border }
 
@@ -364,7 +491,8 @@ FloatingWindow {
                         }
                         Badge { visible: win.width > 1020; text: "host  " + win.host; tone: "dim" }
                         Badge { visible: win.width > 1020 && win.channel !== ""; text: "nixpkgs  " + win.channel; tone: "accent" }
-                        Badge { visible: win.width > 800 && win.changed.length > 0; text: win.changed.length + " sin aplicar"; tone: "warn" }
+                        Badge { visible: win.width > 800 && win.pending.length > 0; text: win.pending.length + " sin aplicar"; tone: "warn" }
+                        Badge { visible: win.width > 800 && win.pending.length === 0 && win.bootPending; text: "reinicio pendiente"; tone: "accent" }
                     }
 
                     Item {
@@ -372,10 +500,9 @@ FloatingWindow {
                         Layout.fillHeight: true
 
                         SearchPage { anchors.fill: parent; app: win; visible: win.tab === 0 }
-                        ChangesPage { anchors.fill: parent; app: win; visible: win.tab === 1 }
-                        TerminalPage { anchors.fill: parent; app: win; visible: win.tab === 2 }
-                        EditorPage { id: editor; anchors.fill: parent; app: win; visible: win.tab === 3 }
-                        SettingsPage { anchors.fill: parent; app: win; visible: win.tab === 4 }
+                        ChangesPage { id: changes; anchors.fill: parent; app: win; visible: win.tab === 1 }
+                        EditorPage { id: editor; anchors.fill: parent; app: win; visible: win.tab === 2 }
+                        SettingsPage { anchors.fill: parent; app: win; visible: win.tab === 3 }
                     }
                 }
 
@@ -453,7 +580,7 @@ FloatingWindow {
                             Text {
                                 Layout.fillWidth: true
                                 wrapMode: Text.WordWrap
-                                text: "Hace falta para activar la configuración (nixos-rebuild test/switch). Se guarda solo en memoria mientras esta ventana siga abierta."
+                                text: "Hace falta para activar la configuración (nixos-rebuild test, switch o boot). Se guarda solo en memoria mientras esta ventana siga abierta."
                                 color: Pal.textDim
                                 font.pixelSize: Pal.fs(11)
                             }
@@ -479,7 +606,8 @@ FloatingWindow {
                                         pwDialog.close()
                                         const s = win.pendingStep
                                         win.pendingStep = ""
-                                        if (s !== "") win.runStep(s)
+                                        if (s === "reboot") win.rebootNow()
+                                        else if (s !== "") win.runStep(s)
                                     }
                                 }
                             }
@@ -514,7 +642,7 @@ FloatingWindow {
 
                 visible: win.ddOpen
                 width: srcW
-                height: Math.min(300, ddView.contentHeight + 10)
+                height: Math.min(300, Math.max(ddView.contentHeight, 34) + 10)
                 x: Math.max(8, Math.min(srcX, overlay.width - width - 8))
                 y: up ? Math.max(8, srcY - height - 6) : Math.min(srcY + srcH + 6, overlay.height - height - 8)
                 radius: Pal.rMd
@@ -522,6 +650,14 @@ FloatingWindow {
                 border.color: Pal.accent
 
                 MouseArea { anchors.fill: parent }
+
+                Text {
+                    anchors.centerIn: parent
+                    visible: ddView.count === 0
+                    text: "Sin archivos con listas de paquetes"
+                    color: Pal.textFaint
+                    font.pixelSize: Pal.fs(11)
+                }
 
                 ListView {
                     id: ddView

@@ -17,6 +17,7 @@ Singleton {
     property bool autoCompact: false          // lo activa la ventana cuando es estrecha
     property bool animations: true
     property string monoFont: "monospace"
+    property string repoPath: ""
     property bool loaded: false
 
     // ───────── Paletas ─────────
@@ -135,7 +136,7 @@ Singleton {
     function snapshot() {
         return {
             theme: themeId, accent: accentCustom, radius: radiusStyle, fontScale: fontScale,
-            opacity: winOpacity, windowRadius: winRadius, compactSidebar: compactSidebar, animations: animations, monoFont: monoFont
+            opacity: winOpacity, windowRadius: winRadius, compactSidebar: compactSidebar, animations: animations, monoFont: monoFont, repoPath: repoPath
         }
     }
 
@@ -149,6 +150,7 @@ Singleton {
         if (typeof o.compactSidebar === "boolean") compactSidebar = o.compactSidebar
         if (typeof o.animations === "boolean") animations = o.animations
         if (typeof o.monoFont === "string") monoFont = o.monoFont
+        if (typeof o.repoPath === "string") repoPath = o.repoPath
     }
 
     function resetAll() {
@@ -174,6 +176,7 @@ Singleton {
     onCompactSidebarChanged: scheduleSave()
     onAnimationsChanged: scheduleSave()
     onMonoFontChanged: scheduleSave()
+    onRepoPathChanged: scheduleSave()
 
     Timer {
         id: saver

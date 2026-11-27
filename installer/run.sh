@@ -10,9 +10,11 @@ if [ -z "${NIXHOME_BACKEND:-}" ]; then
     NIXHOME_BACKEND="$(command -v nix-home-installer)"
   else
     NIXHOME_BACKEND="$CARGO_TARGET_DIR/release/nix-home-installer"
-    if [ ! -x "$NIXHOME_BACKEND" ]; then
-      echo "Compilando el backend (una sola vez)…" >&2
-      command -v notify-send >/dev/null 2>&1 && notify-send -a "Nix Home" "Instalador" "Compilando el backend (solo la primera vez)…" || true
+    stale=""
+    [ -x "$NIXHOME_BACKEND" ] && stale="$(find "$HERE/src" "$HERE/Cargo.toml" -newer "$NIXHOME_BACKEND" -print -quit 2>/dev/null)"
+    if [ ! -x "$NIXHOME_BACKEND" ] || [ -n "$stale" ]; then
+      echo "Compilando el backend…" >&2
+      command -v notify-send >/dev/null 2>&1 && notify-send -a "Nix Home" "Instalador" "Compilando el backend…" || true
       if command -v cargo >/dev/null 2>&1; then
         (cd "$HERE" && cargo build --release)
       else

@@ -14,6 +14,7 @@ Item {
     property int errorFiles: 0
     readonly property alias lines: lines
     signal finished(int code, string title)
+    signal phase(string name)
 
     ListModel { id: lines }
 
@@ -39,6 +40,7 @@ Item {
         let t = stripAnsi(raw)
         const cr = t.lastIndexOf("\r")
         if (cr >= 0) t = t.slice(cr + 1)
+        if (t.indexOf("##NH:") === 0) { root.phase(t.slice(5).trim()); return }
         let kind = forceKind ?? "out"
         if (!forceKind) {
             if (/^\s*(error|error:)/i.test(t) || /\berror:/.test(t)) kind = "err"
@@ -48,6 +50,11 @@ Item {
         if (ref && kind !== "cmd") root.errorFiles++
         if (lines.count > 6000) lines.remove(0, 1000)
         lines.append({ text: t, kind: kind, file: ref ? ref.file : "", line: ref ? ref.line : 0 })
+    }
+
+    function outputMatches(re) {
+        for (let i = 0; i < lines.count; i++) if (re.test(lines.get(i).text)) return true
+        return false
     }
 
     function clear() { lines.clear(); root.errorFiles = 0; root.exitCode = -1 }

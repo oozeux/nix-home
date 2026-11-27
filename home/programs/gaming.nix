@@ -9,7 +9,6 @@
   # TwintailLauncher Gachagames launcher
   #inputs.twintaillauncher.packages.${pkgs.stdenv.hostPlatform.system}.default
 
-
   # Game launchers
   heroic
   lutris

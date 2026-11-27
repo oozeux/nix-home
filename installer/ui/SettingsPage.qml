@@ -1,3 +1,4 @@
+import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
 
@@ -18,6 +19,56 @@ Item {
             id: col
             width: flick.width
             spacing: 16
+
+            // ───────────── Carpeta de configuración ─────────────
+            Section {
+                title: "Carpeta de configuración"
+                subtitle: "Carpeta de tu flake de NixOS. Debe contener flake.nix y configuration.nix (también sirve una subcarpeta)."
+
+                Connections {
+                    target: root.app
+                    function onRepoChanged() { pathField.text = root.app.shortPath(root.app.repo) }
+                }
+
+                Field {
+                    id: pathField
+                    Layout.fillWidth: true
+                    icon: "📁"
+                    mono: true
+                    placeholder: "~/nix-home"
+                    Component.onCompleted: text = root.app.repo !== "" ? root.app.shortPath(root.app.repo) : ""
+                    onAccepted: root.app.setRepo(pathField.text)
+                }
+                Flow {
+                    Layout.fillWidth: true
+                    spacing: 8
+                    Btn { label: "Usar esta carpeta"; kind: "primary"; enabled: pathField.text.trim() !== "" && !root.app.runner.running; onClicked: root.app.setRepo(pathField.text) }
+                    Btn { label: "Elegir…"; enabled: !picker.running; onClicked: picker.running = true }
+                    Btn { label: "Automática"; enabled: !root.app.runner.running; onClicked: root.app.setRepo("") }
+                }
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    text: "Los cambios pendientes se guardan dentro de cada carpeta: si cambias de carpeta con cambios sin aplicar, seguirán allí al volver."
+                    color: Pal.textFaint
+                    font.pixelSize: Pal.fs(11)
+                }
+
+                Process {
+                    id: picker
+                    command: ["sh", "-c",
+                        'if command -v zenity >/dev/null 2>&1; then zenity --file-selection --directory --title="Carpeta de configuración"; ' +
+                        'elif command -v kdialog >/dev/null 2>&1; then kdialog --getexistingdirectory "$HOME"; ' +
+                        'else exit 127; fi']
+                    stdout: StdioCollector {
+                        onStreamFinished: {
+                            const p = text.trim()
+                            if (p !== "") { pathField.text = p; root.app.setRepo(p) }
+                        }
+                    }
+                    onExited: (code, status) => { if (code === 127) root.app.toast("Para elegir con ventana instala zenity o kdialog, o escribe la ruta.", false) }
+                }
+            }
 
             // ───────────── Paleta ─────────────
             Section {

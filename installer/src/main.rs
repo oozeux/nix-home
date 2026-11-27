@@ -478,6 +478,10 @@ fn detect_channel(repo: &Path) -> String {
 
 fn cmd_status(repo: &Path) {
     let git = repo.join(".git").exists();
+    let pending = pending_changes(repo)
+        .into_iter()
+        .map(|(attr, file, action)| J::Obj(vec![("attr", s(attr)), ("file", s(file)), ("action", s(action))]))
+        .collect();
     emit(
         true,
         J::Obj(vec![
@@ -486,6 +490,9 @@ fn cmd_status(repo: &Path) {
             ("channel", s(detect_channel(repo))),
             ("git", J::Bool(git)),
             ("changed", J::Arr(changed_files(repo).into_iter().map(J::Str).collect())),
+            ("pending", J::Arr(pending)),
+            ("fingerprint", s(fingerprint(repo))),
+            ("bootPending", J::Bool(activation_pending())),
         ]),
         None,
     );
@@ -500,6 +507,50 @@ fn changed_files(repo: &Path) -> Vec<String> {
             a != b
         })
         .collect()
+}
+
+// ───────────────────────── Estado pendiente ─────────────────────────
+
+fn package_names(text: &str) -> Vec<String> {
+    find_lists(text).into_iter().flat_map(|l| l.entries.into_iter().map(|(a, _)| a)).collect()
+}
+
+fn pending_changes(repo: &Path) -> Vec<(String, String, &'static str)> {
+    let mut out = Vec::new();
+    for rel in changed_files(repo) {
+        let old = package_names(&fs::read_to_string(snap_path(repo, &rel)).unwrap_or_default());
+        let new = package_names(&fs::read_to_string(repo.join(&rel)).unwrap_or_default());
+        for p in new.iter().filter(|p| !old.contains(p)) {
+            out.push((p.clone(), rel.clone(), "add"));
+        }
+        for p in old.iter().filter(|p| !new.contains(p)) {
+            out.push((p.clone(), rel.clone(), "remove"));
+        }
+    }
+    out
+}
+
+fn fingerprint(repo: &Path) -> String {
+    let files = changed_files(repo);
+    if files.is_empty() {
+        return String::new();
+    }
+    let mut h: u64 = 0xcbf29ce484222325;
+    for rel in files {
+        let body = fs::read(repo.join(&rel)).unwrap_or_default();
+        for b in rel.as_bytes().iter().chain(&[0u8]).chain(body.iter()) {
+            h ^= *b as u64;
+            h = h.wrapping_mul(0x100000001b3);
+        }
+    }
+    format!("{h:016x}")
+}
+
+fn activation_pending() -> bool {
+    match (fs::canonicalize("/run/current-system"), fs::canonicalize("/nix/var/nix/profiles/system")) {
+        (Ok(running), Ok(profile)) => running != profile,
+        _ => false,
+    }
 }
 
 fn cmd_targets(repo: &Path) {
@@ -681,5 +732,43 @@ mod tests {
         let s = "{ home.packages = with pkgs; [ git ]; }\n";
         let a = add_package(s, "htop").unwrap();
         assert!(a.contains("[ git htop ]"));
+    }
+
+    fn temp_repo(tag: &str) -> PathBuf {
+        let d = env::temp_dir().join(format!("nh-test-{tag}-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&d);
+        fs::create_dir_all(&d).unwrap();
+        d
+    }
+
+    #[test]
+    fn pending_detects_add_and_remove() {
+        let repo = temp_repo("pending");
+        fs::write(repo.join("a.nix"), SAMPLE).unwrap();
+        assert!(pending_changes(&repo).is_empty());
+        assert_eq!(fingerprint(&repo), "");
+
+        snapshot(&repo, "a.nix").unwrap();
+        let next = remove_package(&add_package(SAMPLE, "vivaldi").unwrap(), "librewolf").unwrap();
+        fs::write(repo.join("a.nix"), &next).unwrap();
+
+        let p = pending_changes(&repo);
+        assert!(p.contains(&("vivaldi".to_string(), "a.nix".to_string(), "add")));
+        assert!(p.contains(&("librewolf".to_string(), "a.nix".to_string(), "remove")));
+        assert_eq!(p.len(), 2);
+        let _ = fs::remove_dir_all(&repo);
+    }
+
+    #[test]
+    fn fingerprint_changes_with_content() {
+        let repo = temp_repo("fp");
+        fs::write(repo.join("a.nix"), SAMPLE).unwrap();
+        snapshot(&repo, "a.nix").unwrap();
+        fs::write(repo.join("a.nix"), add_package(SAMPLE, "vivaldi").unwrap()).unwrap();
+        let one = fingerprint(&repo);
+        fs::write(repo.join("a.nix"), add_package(SAMPLE, "htop").unwrap()).unwrap();
+        let two = fingerprint(&repo);
+        assert!(!one.is_empty() && one != two);
+        let _ = fs::remove_dir_all(&repo);
     }
 }

@@ -8,7 +8,7 @@ Rectangle {
     property string name: ""
     property string icon: ""
     readonly property bool active: app.tab === tabIndex
-    readonly property bool showDot: (tabIndex === 1 && app.changed.length > 0) || (tabIndex === 2 && app.runner.running)
+    readonly property bool showDot: tabIndex === 1 && (app.pending.length > 0 || app.runner.running)
 
     Layout.fillWidth: true
     Layout.preferredHeight: 44
@@ -48,12 +48,12 @@ Rectangle {
             font.bold: root.active
         }
         Badge {
-            visible: !Pal.compact && root.tabIndex === 1 && root.app.changed.length > 0
-            text: root.app.changed.length
+            visible: !Pal.compact && root.tabIndex === 1 && root.app.pending.length > 0
+            text: root.app.pending.length
             tone: "accent"
         }
         Rectangle {
-            visible: !Pal.compact && root.tabIndex === 2 && root.app.runner.running
+            visible: !Pal.compact && root.tabIndex === 1 && root.app.runner.running
             width: 8; height: 8; radius: 4; color: Pal.ok
         }
         Text {
@@ -67,7 +67,7 @@ Rectangle {
     Rectangle {
         visible: Pal.compact && root.showDot
         width: 9; height: 9; radius: 5
-        color: root.tabIndex === 2 ? Pal.ok : Pal.accent
+        color: root.app.runner.running ? Pal.ok : Pal.accent
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: 7

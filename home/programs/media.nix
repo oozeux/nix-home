@@ -7,7 +7,6 @@
     vlc
     ffmpeg
     #parabolic #YT VideoDownloader
-    
 
     # Images
     nomacs
@@ -16,5 +15,6 @@
     #gimp
 
     #Installer
+    #krita
   ];
 }

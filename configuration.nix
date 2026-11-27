@@ -28,6 +28,7 @@
     ./modules/polkit.nix
     ./modules/qemu.nix
     ./modules/quickshell.nix
+    #./modules/umbriel.nix
     ./modules/users.nix
     
     ./modules/nvidia.nix 

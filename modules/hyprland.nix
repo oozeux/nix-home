@@ -13,10 +13,12 @@
     xwayland.enable = true;
 
     package =
-      inputs.hyprnix.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
+      # inputs.hyprnix.packages.${pkgs.stdenv.hostPlatform.system}.hyprland;
 
     portalPackage =
-      inputs.hyprnix.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+      inputs.hyprland.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
+      # inputs.hyprnix.packages.${pkgs.stdenv.hostPlatform.system}.xdg-desktop-portal-hyprland;
   };
 
   # ============================================================================
